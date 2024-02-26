@@ -1,0 +1,372 @@
+Monolithic
+
+SOA
+
+Microservice
+
+Spring Boot
+
+Microservice Design Patterns
+
+https://microservices.io/
+
+
+Spring Cloud Services / Patterns
+
+
+Spring Cloud Release trains
+
+Angel
+Brixton
+Camden					1.4.x and 1.5.x
+Dalston					1.5.x
+Edgware					1.5.x
+Finchley				2.0.x
+Greenwich				2.1.x
+Hoxton					2.2.x
+
+SRX--> X is a number
+
+
+Service Discovery		- Eureka
+
+Circuit Breaker			- Hystrix
+
+Declarative REST client	- Feign
+
+External Configuration	- Spring Cloud Config Server
+
+Client side Load Balancer	- Ribbon
+	
+Router and Filter		- Zuul
+
+
+
+Eureka Server
+--------------------
+
+working modes
+
+1. Independent
+
+2. Cluster
+
+
+3 projects
+1. Eureka Server - registry info
+2. Employee Producer - registers with Eureka
+3. Employee Consumer - downloads the registry infor from Eureka, consumes the filtered IP address
+						and port number of the required Producer thru RestTemplate
+
+
+
+Cluster
+
+Eureka Server1 				Eureka Server2			EurekaServer3
+http://localhost:7090/
+
+
+
+Consumer:
+http://localhost:8091/emp/controller/getDetailsClient
+
+
+
+Health Monitoring
+
+Heartbeat
+
+after sucessful registration, every 30 seconds, the Eureka client sends a heartbeat signal to the
+Eureka Server to renew its leases
+
+
+Producer -->	1 min	- 2
+Consumer -->	1 min	- 2
+
+5 heartbeat signals every minute
+
+
+
+self preservation mode
+-------------------------
+eureka.server.eviction-interval-timer-in-ms= default 60 seconds
+
+eureka.instance.lease-expiration-duration-in-seconds=default 90seconds
+
+
+eureka.server.enable-self-preservation=false
+
+Ribbon
+Client side load balancer
+
+2 types of load balancers
+1. Server side
+	manual intervention
+
+2. Client side
+	no manual intervention
+
+Eureka -	maintains the registry info
+Producer - 2 instances - registers multiple instances with Eureka
+Consumer - downloads the registry info from Eureka. Uses
+			1. Ribbon client side load balancer with RestTemplate
+			2. LoadBalancerClient
+			to pick one of the instance of the producer and make a call to the producer instance 
+			
+
+
+Cascading failure
+
+
+ServiceA	---------->		ServiceB	---------->		ServiceC
+
+
+Issues to be addressed
+-----------------------------
+Fault tolerance
+
+Resource overloading
+
+Hard to detect and recover from failure with automation
+
+learn to embrace failures and degrade sucessfully
+
+
+
+Circuit Breaker design pattern
+
+is switch that prevents too much current flowing thru the circuit. it detects thtat too much current flow
+thru a circuit anf opens the circuit to prevent over flow of the current thru the circuit
+
+Hystrix
+================
+latency and fault tolerance library
+
+======> fallbacks
+Fallback is method that returns the alternative result/cache results/empty data/default values
+
+===========> protects services from  being overloading
+
+======> timeouts
+execution.isolation.thread.timeoutInMilliseconds--> default 1 second
+
+======> wraps the calls and watches them for failure (to open the circuit)
+	circuitBreaker.requestVolumeThreshold-> 	default 20 calls
+	metrics.rollingStats.timeInMilliseconds->	default	10 seconds
+	circuitBreaker.errorThresholdPercentage->	default >=50%
+	
+	
+1000 requests
+10 seconds
+500 requests were errors
+then the circuit will be tripped
+
+
+circuit remains open for 
+circuitBreaker.sleepWindowInMilliseconds--> default 5 seconds
+
+
+Console based demo
+
+num=0
+	1 second
+num=0
+	1 second
+num=2
+	1 second
+num=2
+	1 second
+num=2
+
+
+CIRCUIT OPEN ----------> 3 seconds
+
+
+
+
+States
+------------
+Close
+	- everything is working fine and no errors / timeouts
+	
+Semi OPEN
+	- All the 3 properties are NOT met
+	- any request which is placed, throws an exception but first 3 properties are not met
+	- any request placed that is taking too much time and timeout has happened but first 3 properties are not met
+
+Full OPEN (Short Circuit)
+	- threshopld for volume of request, failing requests / errors within given period of time has been met
+	
+
+5 requests
+within 6 seconds
+out of 5, 3 requets are failure
+
+circuit open --> remains open for 3 seconds
+
+
+after circuit is open
+1st request ---> short circuited
+after 2 seconds ---> short circuited
+after 2 seconds ---> semi open --> method is success --> closed
+(or)
+after 2 seconds ---> semi open --> method is failure --> after time out executes the fallback --> full open
+
+
+Producer --> 12 seconds
+
+
+5 request 
+within 6 seconds
+3 or more--> failure
+
+circuit --> 60 seconds
+
+timeout --> 5 seconds
+
+
+
+
+
+
+execute the producer project
+	clean install spring-boot:run
+	
+	http://localhost:7091/emp/controller/setFlag/true
+	
+execute the consumer project
+	clean install spring-boot:run
+	
+	
+http://localhost:7093/to-read2			-->			5 seconds
+http://localhost:7093/to-read2			-->			5 seconds
+http://localhost:7093/to-read2			-->			5 seconds
+http://localhost:7093/to-read2			-->			5 seconds
+http://localhost:7093/to-read2			-->			5 seconds
+http://localhost:7093/to-read2			-->			alternative response immediately (short circuit)
+
+
+60 seconds
+
+within 60 seconds  ---> any request ---> short circuited
+
+
+http://localhost:7093/hystrix
+
+http://localhost:7093/hystrix.stream
+
+
+wait for 60 seconds and send one request, 
+observe the dashboard --> timeout (fallback gets executed) --> circuit remains open
+
+circuit is open -> remains open for 60 seconds
+
+
+http://localhost:7091/emp/controller/setFlag/true
+
+
+http://localhost:7091/emp/controller/getDetails
+
+
+http://localhost:7093/to-read2
+
+Feign
+------------
+
+Declarative Web Service client
+
+Spring MVC annotations and HttpMessageConverters
+
+no REST implementation other than the interface definition
+
+
+consumer
+-> gettting the service instance / base URL
+-> make use of REST template for consuming the service
+-> process the response
+
+the above avoided using Feign declarative client
+
+
+Producer - service that acts as a producer
+Consumer - service that acts as like a consumer
+			uses Feign client instead Rest Template to communicate with the Producer
+			
+			
+
+spring-cloud-starter-feign
+application.properties ---> 7092
+
+@FeignClient(name="employee-producer", url="http://localhost:7091/")
+interface MyFeignClient{
+
+	@RequestMapping(value="emp/controller/getDetails", method=RequestMethod.GET)
+	ResponseEntity<List<EmployeeBean>> findAll();
+
+}
+
+
+MyFeignClient.findAll();
+
+
+
+Main class
+
+@EnableFeignClients
+	-> enable component scan for the interfaces annotated with @FeignClient
+	-> runtime implementation will be created
+	
+Controller
+	@Autowired
+	MyFeignClient feignClient;
+		
+
+
+
+Producer
+http://localhost:7091/
+emp/controller/getDetails
+emp/controller/getDetailsById/{id}
+emp/controller/addEmp
+emp/controller/updateEmp
+emp/controller/deleteEmp/{id}
+
+
+
+Consumer
+http://localhost:7092/emp/controller/getEmployees
+http://localhost:7092/emp/controller/getEmployeeById/1001
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
