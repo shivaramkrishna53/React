@@ -1,50 +1,50 @@
-import { useEffect, useRef, useState } from 'react';
-import StarRating from './StarRating';
-import { useMovies } from './useMovies';
-import { useLocalStorageState } from './useLocalStorageState';
-import { useKey } from './useKey';
+import { useEffect, useRef, useState } from "react";
+import StarRating from "./StarRating";
+import { useMovies } from "./useMovies";
+import { useLocalStorageState } from "./useLocalStorageState";
+import { useKey } from "./useKey";
 
 const tempMovieData = [
   {
-    imdbID: 'tt1375666',
-    Title: 'Inception',
-    Year: '2010',
+    imdbID: "tt1375666",
+    Title: "Inception",
+    Year: "2010",
     Poster:
-      'https://m.media-amazon.com/images/M/MV5BMjAxMzY3NjcxNF5BMl5BanBnXkFtZTcwNTI5OTM0Mw@@._V1_SX300.jpg',
+      "https://m.media-amazon.com/images/M/MV5BMjAxMzY3NjcxNF5BMl5BanBnXkFtZTcwNTI5OTM0Mw@@._V1_SX300.jpg",
   },
   {
-    imdbID: 'tt0133093',
-    Title: 'The Matrix',
-    Year: '1999',
+    imdbID: "tt0133093",
+    Title: "The Matrix",
+    Year: "1999",
     Poster:
-      'https://m.media-amazon.com/images/M/MV5BNzQzOTk3OTAtNDQ0Zi00ZTVkLWI0MTEtMDllZjNkYzNjNTc4L2ltYWdlXkEyXkFqcGdeQXVyNjU0OTQ0OTY@._V1_SX300.jpg',
+      "https://m.media-amazon.com/images/M/MV5BNzQzOTk3OTAtNDQ0Zi00ZTVkLWI0MTEtMDllZjNkYzNjNTc4L2ltYWdlXkEyXkFqcGdeQXVyNjU0OTQ0OTY@._V1_SX300.jpg",
   },
   {
-    imdbID: 'tt6751668',
-    Title: 'Parasite',
-    Year: '2019',
+    imdbID: "tt6751668",
+    Title: "Parasite",
+    Year: "2019",
     Poster:
-      'https://m.media-amazon.com/images/M/MV5BYWZjMjk3ZTItODQ2ZC00NTY5LWE0ZDYtZTI3MjcwN2Q5NTVkXkEyXkFqcGdeQXVyODk4OTc3MTY@._V1_SX300.jpg',
+      "https://m.media-amazon.com/images/M/MV5BYWZjMjk3ZTItODQ2ZC00NTY5LWE0ZDYtZTI3MjcwN2Q5NTVkXkEyXkFqcGdeQXVyODk4OTc3MTY@._V1_SX300.jpg",
   },
 ];
 
 const tempWatchedData = [
   {
-    imdbID: 'tt1375666',
-    Title: 'Inception',
-    Year: '2010',
+    imdbID: "tt1375666",
+    Title: "Inception",
+    Year: "2010",
     Poster:
-      'https://m.media-amazon.com/images/M/MV5BMjAxMzY3NjcxNF5BMl5BanBnXkFtZTcwNTI5OTM0Mw@@._V1_SX300.jpg',
+      "https://m.media-amazon.com/images/M/MV5BMjAxMzY3NjcxNF5BMl5BanBnXkFtZTcwNTI5OTM0Mw@@._V1_SX300.jpg",
     runtime: 148,
     imdbRating: 8.8,
     userRating: 10,
   },
   {
-    imdbID: 'tt0088763',
-    Title: 'Back to the Future',
-    Year: '1985',
+    imdbID: "tt0088763",
+    Title: "Back to the Future",
+    Year: "1985",
     Poster:
-      'https://m.media-amazon.com/images/M/MV5BZmU0M2Y1OGUtZjIxNi00ZjBkLTg1MjgtOWIyNThiZWIwYjRiXkEyXkFqcGdeQXVyMTQxNzMzNDI@._V1_SX300.jpg',
+      "https://m.media-amazon.com/images/M/MV5BZmU0M2Y1OGUtZjIxNi00ZjBkLTg1MjgtOWIyNThiZWIwYjRiXkEyXkFqcGdeQXVyMTQxNzMzNDI@._V1_SX300.jpg",
     runtime: 116,
     imdbRating: 8.5,
     userRating: 9,
@@ -54,13 +54,13 @@ const tempWatchedData = [
 const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
 
-const KEY = '54508a77';
+const KEY = "54508a77";
 
 export default function App() {
   // const [watched, setWatched] = useState([]);
-  const [watched, setWatched] = useLocalStorageState([], 'watched');
-  const [selectedmovieid, setSelectedMovieId] = useState('');
-  const [query, setQuery] = useState('');
+  const [watched, setWatched] = useLocalStorageState([], "watched");
+  const [selectedmovieid, setSelectedMovieId] = useState("");
+  const [query, setQuery] = useState("");
 
   // useEffect(function () {
   //   fetch(`http://www.omdbapi.com/?apikey=${KEY}&s=${query}`)
@@ -76,7 +76,7 @@ export default function App() {
   }
 
   function handleSelectedMovieId(id) {
-    console.log('the id u are getting is:::' + id);
+    console.log("the id u are getting is:::" + id);
     setSelectedMovieId((selectedidprev) => (selectedidprev === id ? null : id));
   }
 
@@ -135,7 +135,7 @@ export default function App() {
             />
           ) : (
             <>
-              {' '}
+              {" "}
               <MoviesSummary watched={watched} />
               <WatchedMoviesList
                 watched={watched}
@@ -199,7 +199,7 @@ function Box({ children }) {
   return (
     <div className="box">
       <button className="btn-toggle" onClick={() => setIsOpen((open) => !open)}>
-        {isOpen ? '–' : '+'}
+        {isOpen ? "–" : "+"}
       </button>
       {isOpen && children}
     </div>
@@ -329,7 +329,7 @@ function DisplaySelectedMovie({
 }) {
   const [movie, SetMovie] = useState({});
   const [isloading, setIsloading] = useState(false);
-  const [userRating, SetUserRating] = useState('');
+  const [userRating, SetUserRating] = useState("");
   const { Title: title, imdbRating } = movie;
 
   // you should never place the hooks or return in conditional statements or loops, as it results in rendering more/less hooks than previous render.
@@ -395,17 +395,17 @@ function DisplaySelectedMovie({
       //will be executed when the component gets unmounted.
 
       return function () {
-        document.title = 'usePopcorn';
+        document.title = "usePopcorn";
         console.log(`Clean up effect for the movie ${title}`);
       };
     },
     [title]
   );
 
-  useKey('Escape', onCloseBtn);
+  useKey("Escape", onCloseBtn);
 
-  useKey('Enter', function () {
-    console.log('Pressed Enter key succesfully');
+  useKey("Enter", function () {
+    console.log("Pressed Enter key succesfully");
   });
 
   // useEffect(
@@ -428,7 +428,7 @@ function DisplaySelectedMovie({
   // );
 
   let moviepresent = watchedMovies.find(
-    (movie) => movie.movieid === selectedmovieid
+    (movie) => movie.imdbid === selectedmovieid
   );
 
   return (
@@ -496,7 +496,7 @@ function DisplaySelectedMovie({
                 </>
               ) : (
                 <p>
-                  You have already rated the Movie with{' '}
+                  You have already rated the Movie with{" "}
                   {moviepresent?.userRating} <span>⭐</span>
                 </p>
               )}
